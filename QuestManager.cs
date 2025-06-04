@@ -22,7 +22,7 @@ public class QuestManager
             .Take(25)
             .Select((text, index) => new Quest
             {
-                Id = index,
+                Id = index.ToString(),
                 Text = text
             })
             .ToArray();

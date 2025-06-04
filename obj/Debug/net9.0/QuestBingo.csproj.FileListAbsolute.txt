@@ -35,3 +35,4 @@
 /Users/thomas/code/QuestBingo/bin/Debug/net9.0/Assets/Quests.json
 /Users/thomas/code/QuestBingo/bin/Debug/net9.0/Newtonsoft.Json.dll
 /Users/thomas/code/QuestBingo/bin/Debug/net9.0/System.Net.WebSockets.WebSocketProtocol.dll
+/Users/thomas/code/QuestBingo/obj/Debug/net9.0/QuestBingo.sourcelink.json

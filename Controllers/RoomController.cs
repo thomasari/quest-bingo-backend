@@ -130,4 +130,24 @@ public class RoomController : ControllerBase
             message = msg.Message
         }));
     }
+
+    [HttpPatch("room/{roomId}/quest/{questId}")]
+    public async Task<IActionResult> ToggleQuest(string roomId, string questId, [FromBody] string playerId)
+    {
+        var room = _roomManager.GetRoom(roomId);
+        if (room == null) return NotFound();
+        
+        foreach (var row in room.Board.Quests)
+        {
+            var quest = row.FirstOrDefault(q => q.Id == questId);
+            if (quest == null) continue;
+            
+            quest.CompletedByPlayerId = quest.CompletedByPlayerId == playerId ? null : playerId; 
+
+            await _hub.Clients.Group(roomId).SendAsync("RoomUpdate", room);
+            return Ok();
+        }
+
+        return NotFound("Quest not found");
+    }
 }
