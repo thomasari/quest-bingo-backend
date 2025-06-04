@@ -91,13 +91,14 @@ public class RoomController : ControllerBase
         
         return Ok(player);
     }
+    
     [HttpGet("room/{roomId}/start")]
     public async Task<IActionResult> StartGame(string roomId)
     {   
         var room = _roomManager.GetRoom(roomId);
         if (room == null) return NotFound($"Room {roomId} not found");
 
-        room.GameStarted = true;
+        room.GameStarted = DateTimeOffset.Now;
         
         var systemMessage = new ChatMessage
         {
@@ -114,6 +115,41 @@ public class RoomController : ControllerBase
             .SendAsync("ReceiveChat", "System", "#b0b0b0", systemMessage.Message);
         
         return Ok(room);
+    }
+    
+    [HttpGet("room/{roomId}/end")]
+    public async Task<IActionResult> EndGame(string roomId)
+    {   
+        var room = _roomManager.GetRoom(roomId);
+        if (room == null) return NotFound($"Room {roomId} not found");
+
+        room.GameEnded = true;
+
+        var leadingPlayer = room.LeadingPlayer()?.Name;
+
+        string durationText = "";
+        if (room.GameStarted != null)
+        {
+            var duration = DateTimeOffset.UtcNow - room.GameStarted.Value;
+            durationText = $" after {FormatDuration(duration)}";
+        }
+
+        var systemMessage = new ChatMessage
+        {
+            Sender = new Player { Name = "System", Color = "#b0b0b0" },
+            Message = leadingPlayer == null
+                ? $"Game ended in a draw{durationText}!"
+                : $"Game ended! {leadingPlayer} won{durationText}!"
+        };
+
+        await _hub.Clients.Group(roomId).SendAsync("RoomUpdate", room);
+
+        room.ChatHistory.Add(systemMessage);
+
+        await _hub.Clients.Group(roomId)
+            .SendAsync("ReceiveChat", "System", "#b0b0b0", systemMessage.Message);
+
+        return Ok();
     }
     
     [HttpGet("room/{roomId}/chat")]
@@ -149,5 +185,14 @@ public class RoomController : ControllerBase
         }
 
         return NotFound("Quest not found");
+    }
+    
+    string FormatDuration(TimeSpan duration)
+    {
+        if (duration.TotalHours >= 1)
+            return $"{(int)duration.TotalHours} hour{(duration.TotalHours >= 2 ? "s" : "")}";
+        if (duration.TotalMinutes >= 1)
+            return $"{(int)duration.TotalMinutes} minute{(duration.TotalMinutes >= 2 ? "s" : "")}";
+        return $"{(int)duration.TotalSeconds} second{(duration.TotalSeconds >= 2 ? "s" : "")}";
     }
 }

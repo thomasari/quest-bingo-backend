@@ -32,6 +32,7 @@ public class RoomManager
 
     public Room? GetRoom(string id) => _rooms.TryGetValue(id, out var room) ? room : null;
 
+    public void DeleteRoom(string roomId) => _rooms.Remove(roomId);
     public Player? AddPlayer(string roomId)
     {
         if (_rooms.TryGetValue(roomId, out var room))
