@@ -19,5 +19,8 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
+  },
+  "environmentVariables": {
+    "CORS_ORIGIN": "http://localhost:5173"
   }
 }

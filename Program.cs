@@ -8,11 +8,13 @@ builder.Services.AddSignalR();
 
 builder.Services.AddControllers();
 
+var allowedOrigin = builder.Configuration["CORS_ORIGIN"];
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // Adjust if different port
+        policy.WithOrigins(allowedOrigin!)
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
