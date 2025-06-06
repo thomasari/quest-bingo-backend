@@ -52,14 +52,15 @@ public class RoomController : ControllerBase
         var systemMessage = new ChatMessage
         {
             Sender = new Player { Name = "System", Color = "#b0b0b0" }, 
-            Message = $"{player.Name} joined the game!"
+            Message = $"{player.Name} joined the game!",
+            IsSystemMessage = true
         };
 
         room.ChatHistory.Add(systemMessage);
 
         // Broadcast to clients
         await _hub.Clients.Group(roomId)
-            .SendAsync("ReceiveChat", "System", "#b0b0b0", systemMessage.Message);
+            .SendAsync("ReceiveChat", "System", true, "#b0b0b0", systemMessage.Message);
 
         return Ok(new { player, room });
     }
@@ -67,7 +68,7 @@ public class RoomController : ControllerBase
     [HttpPut("room/{roomId}/player/{playerId}")]
     public async Task<IActionResult> UpdateName(string roomId, string playerId, [FromBody] string name)
     {   
-        var room = _roomManager.GetRoom(roomId);
+        var room = _roomManager.GetRoom(roomId);    
         if (room == null) return NotFound($"Room {roomId} not found");
 
         var player = room.Players.FirstOrDefault(p => p.Id == playerId);
@@ -76,7 +77,8 @@ public class RoomController : ControllerBase
         var systemMessage = new ChatMessage
         {
             Sender = new Player { Name = "System", Color = "#b0b0b0" }, 
-            Message = $"{player.Name} changed name to {name}."
+            Message = $"{player.Name} changed name to {name}.",
+            IsSystemMessage = true
         };
         
         player.Name = name;
@@ -87,7 +89,7 @@ public class RoomController : ControllerBase
 
         // Broadcast to clients
         await _hub.Clients.Group(roomId)
-            .SendAsync("ReceiveChat", "System", "#b0b0b0", systemMessage.Message);
+            .SendAsync("ReceiveChat", "System", true, "#b0b0b0", systemMessage.Message);
         
         return Ok(player);
     }
@@ -103,7 +105,8 @@ public class RoomController : ControllerBase
         var systemMessage = new ChatMessage
         {
             Sender = new Player { Name = "System", Color = "#b0b0b0" }, 
-            Message = $"Game started!"
+            Message = $"Game started!",
+            IsSystemMessage = true
         };
         
         await _hub.Clients.Group(roomId).SendAsync("RoomUpdate", room);
@@ -112,7 +115,7 @@ public class RoomController : ControllerBase
 
         // Broadcast to clients
         await _hub.Clients.Group(roomId)
-            .SendAsync("ReceiveChat", "System", "#b0b0b0", systemMessage.Message);
+            .SendAsync("ReceiveChat", "System", true, "#b0b0b0", systemMessage.Message);
         
         return Ok(room);
     }
@@ -139,7 +142,8 @@ public class RoomController : ControllerBase
             Sender = new Player { Name = "System", Color = "#b0b0b0" },
             Message = leadingPlayer == null
                 ? $"Game ended in a draw{durationText}!"
-                : $"Game ended! {leadingPlayer} won{durationText}!"
+                : $"Game ended! {leadingPlayer} won{durationText}!",
+            IsSystemMessage = true
         };
 
         await _hub.Clients.Group(roomId).SendAsync("RoomUpdate", room);
@@ -147,7 +151,7 @@ public class RoomController : ControllerBase
         room.ChatHistory.Add(systemMessage);
 
         await _hub.Clients.Group(roomId)
-            .SendAsync("ReceiveChat", "System", "#b0b0b0", systemMessage.Message);
+            .SendAsync("ReceiveChat", "System", true, "#b0b0b0", systemMessage.Message);
 
         return Ok();
     }
@@ -163,7 +167,8 @@ public class RoomController : ControllerBase
                 name = msg.Sender.Name,
                 color = msg.Sender.Color
             },
-            message = msg.Message
+            message = msg.Message,
+            isSystemMessage = msg.IsSystemMessage,
         }));
     }
 

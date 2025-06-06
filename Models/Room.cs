@@ -38,4 +38,5 @@ public class ChatMessage
 {
     public Player Sender { get; set; }
     public string Message { get; set; }
+    public bool IsSystemMessage { get; set; }
 }

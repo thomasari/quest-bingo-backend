@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QuestBingo")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+456a1964491f4a40d5faa8b92d204ff7f9e5afc2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+44320e7ee9b7cc02fcefedde2dc25fe0bd00548d")]
 [assembly: System.Reflection.AssemblyProductAttribute("QuestBingo")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QuestBingo")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -20,8 +20,8 @@ public class RoomHub : Hub
             var player = room.Players.Find(p => p.Id == playerId);
             if (player != null)
             {
-                room.ChatHistory.Add(new ChatMessage { Sender = player, Message = message });
-                await Clients.Group(roomId).SendAsync("ReceiveChat", player.Name, player.Color, message);
+                room.ChatHistory.Add(new ChatMessage { Sender = player, Message = message, IsSystemMessage = false });
+                await Clients.Group(roomId).SendAsync("ReceiveChat", player.Name, false, player.Color, message);
             }
         }
     }
