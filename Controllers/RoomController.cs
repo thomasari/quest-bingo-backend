@@ -96,27 +96,72 @@ public class RoomController : ControllerBase
     
     [HttpGet("room/{roomId}/start")]
     public async Task<IActionResult> StartGame(string roomId)
-    {   
+    {
         var room = _roomManager.GetRoom(roomId);
         if (room == null) return NotFound($"Room {roomId} not found");
 
-        room.GameStarted = DateTimeOffset.Now;
-        
-        var systemMessage = new ChatMessage
+        var countdownMessages = new[] { "Game starts in 3...", "Game starts in 2...", "Game starts in 1..." };
+
+        foreach (var msg in countdownMessages)
         {
-            Sender = new Player { Name = "System", Color = "#b0b0b0" }, 
-            Message = $"Game started!",
+            var countdownMessage = new ChatMessage
+            {
+                Sender = new Player { Name = "System", Color = "#b0b0b0" },
+                Message = msg,
+                IsSystemMessage = true
+            };
+
+            room.ChatHistory.Add(countdownMessage);
+
+            await _hub.Clients.Group(roomId)
+                .SendAsync("ReceiveChat", "System", true, "#b0b0b0", msg);
+
+            await Task.Delay(1000); // 1 second between messages
+        }
+
+        room.GameStarted = DateTimeOffset.Now;
+
+        var startMessage = new ChatMessage
+        {
+            Sender = new Player { Name = "System", Color = "#b0b0b0" },
+            Message = "Game started!",
             IsSystemMessage = true
         };
-        
+
+        room.ChatHistory.Add(startMessage);
+
         await _hub.Clients.Group(roomId).SendAsync("RoomUpdate", room);
+
+        await _hub.Clients.Group(roomId)
+            .SendAsync("ReceiveChat", "System", true, "#b0b0b0", startMessage.Message);
+
+        return Ok(room);
+    }
+    
+    [HttpGet("room/{roomId}/restart")]
+    public async Task<IActionResult> RestartGame(string roomId)
+    {
+        var room = _roomManager.GetRoom(roomId);
+        if (room == null) return NotFound($"Room {roomId} not found");
+
+        // Reset game
+        room.GameStarted = null;
+        room.GameEnded = false;
+        room.Board = _questManager.CreateBoard();
+        
+
+        var systemMessage = new ChatMessage
+        {
+            Sender = new Player { Name = "System", Color = "#b0b0b0" },
+            Message = "Generating new game...",
+            IsSystemMessage = true
+        };
 
         room.ChatHistory.Add(systemMessage);
 
-        // Broadcast to clients
-        await _hub.Clients.Group(roomId)
-            .SendAsync("ReceiveChat", "System", true, "#b0b0b0", systemMessage.Message);
-        
+        await _hub.Clients.Group(roomId).SendAsync("RoomUpdate", room);
+        await _hub.Clients.Group(roomId).SendAsync("ReceiveChat", "System", true, "#b0b0b0", systemMessage.Message);
+
         return Ok(room);
     }
     

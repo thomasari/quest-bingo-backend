@@ -11,6 +11,8 @@ public class Room(string id)
     public DateTimeOffset? GameStarted { get; set; }
     public bool GameEnded { get; set; } = false;
     public bool IsBingoMode { get; set; } = false;
+    
+    // TODO: Start new game in same lobby
 
     public Player? LeadingPlayer()
     {
