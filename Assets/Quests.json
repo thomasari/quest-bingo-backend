@@ -2,7 +2,7 @@
   "Use a jetpack",
   "Drink a potion",
   "Light a furnace",
-  "Suffocate",
+  "Die from suffocation",
   "Become invisible",
   "Catch a fish",
   "Win a battle royale",
@@ -11,7 +11,6 @@
   "Defeat a boss",
   "Win a 1v1 (online)",
   "Put on a helmet",
-  "Soft lock yourself",
   "Cast a spell",
   "Get an upgrade",
   "Build a house",
@@ -22,6 +21,9 @@
   "Kill a dragon",
   "Use a computer in-game",
   "Kill another player",
+  "Throw a grenade",
+  "Do a backflip",
+  "Use a parachute",
   "Build a turret",
   "Pickpocket someone",
   "Use a grappling hook",
@@ -61,5 +63,7 @@
   "Use a portal or teleport",
   "Ride a boat",
   "Use a parachute",
-  "Get another player to write or say your name"
+  "Get another player to write or say your name",
+  "Break a window",
+  "Kill an NPC"
 ]

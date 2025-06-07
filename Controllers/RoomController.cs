@@ -183,9 +183,31 @@ public class RoomController : ControllerBase
             var quest = row.FirstOrDefault(q => q.Id == questId);
             if (quest == null) continue;
             
-            quest.CompletedByPlayerId = quest.CompletedByPlayerId == playerId ? null : playerId; 
+            quest.CompletedByPlayerId = quest.CompletedByPlayerId == playerId ? null : playerId;
+            var player = room.Players.FirstOrDefault(p => p.Id == playerId);
 
             await _hub.Clients.Group(roomId).SendAsync("RoomUpdate", room);
+
+            if (quest.CompletedByPlayerId != null)
+            {
+                var systemMessage = new ChatMessage
+                {
+                    Sender = new Player { Name = "System", Color = "#b0b0b0" },
+                    Message = $"{player.Name} completed \"{quest.Text}\"!",
+                    IsSystemMessage = true
+                };
+            
+                room.ChatHistory.Add(systemMessage);
+
+                await _hub.Clients.Group(roomId)
+                    .SendAsync("ReceiveChat", "System", true, "#b0b0b0", systemMessage.Message);
+            }
+
+            if (room.Board.Quests.All(r => r.All(q => q.CompletedByPlayerId != null)))
+            {
+                await EndGame(roomId);
+            }
+            
             return Ok();
         }
 
